@@ -91,6 +91,22 @@ def download():
     return content, 200, {"Content-Type": "application/octet-stream"}
 
 
+@app.route("/api/orders/<int:order_id>/invoice")
+@auth.require_order_access
+def order_invoice(order_id):
+    """Return the invoice for one of the caller's orders."""
+    order = models.get_order(order_id)
+    if order is None:
+        return jsonify({"error": "not found"}), 404
+    return jsonify({
+        "invoice": {
+            "order_id": order["id"],
+            "item": order["item"],
+            "total_cents": order["total_cents"],
+        }
+    })
+
+
 if __name__ == "__main__":
     db.init_db()
     # Localhost only. This application is deliberately insecure.
